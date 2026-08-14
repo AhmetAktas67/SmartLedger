@@ -22,6 +22,17 @@ namespace SmartLedger.Services
             db.Mitglieder.Add(mitglied);
             db.SaveChanges();
         }
+
+        public void Loeschen(int mitgliedId)
+        {
+            using var db = new SmartLedgerDbContext();
+            var mitglied = db.Mitglieder.Find(mitgliedId);
+            if (mitglied != null)
+            {
+                db.Mitglieder.Remove(mitglied);
+                db.SaveChanges();
+            }
+        }
     }
 }
 

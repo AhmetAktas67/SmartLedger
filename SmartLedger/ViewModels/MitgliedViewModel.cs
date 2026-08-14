@@ -11,6 +11,7 @@ namespace SmartLedger.ViewModels
     public class MitgliedViewModel : BaseViewModel
     {
         private Mitglied _mitglied;
+        public int Id => _mitglied.Id;
 
         public MitgliedViewModel(Mitglied mitglied)
         {

@@ -19,5 +19,14 @@ namespace SmartLedger.Services
             string dbPath = System.IO.Path.Combine(AppContext.BaseDirectory, "smartledger.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Beitragszahlung>()
+                .HasOne(b => b.Mitglied)
+                .WithMany()
+                .HasForeignKey(b => b.MitgliedId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

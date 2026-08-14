@@ -8,7 +8,6 @@
         Title="MainWindow" Height="450" Width="800">
 
     <DockPanel Margin="10">
-
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
             <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
             <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
@@ -16,13 +15,48 @@
             <Button Content="Hinzufügen" Command="{Binding AddMitgliedCommand}" Width="100" />
         </StackPanel>
 
-        <DataGrid ItemsSource="{Binding Mitglieder}" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
-                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
-                <DataGridTextColumn Header="Monatsbeitrag" Binding="{Binding Monatsbeitrag}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+       
+        <TabControl>
+            <TabItem Header="Mitglieder">
+                <DataGrid ItemsSource="{Binding Mitglieder}" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
+                        <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
+                        <DataGridTextColumn Header="Monatsbeitrag" Binding="{Binding Monatsbeitrag}" Width="*"/>
+                        <DataGridTemplateColumn Header="Aktion" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Löschen" 
+                                Command="{Binding DataContext.DeleteMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
 
+
+            <TabItem Header="Beitragsmatrix">
+                <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="80"/>
+                        <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="80"/>
+                        <DataGridCheckBoxColumn Header="Jan" Binding="{Binding Januar}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Feb" Binding="{Binding Februar}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Mär" Binding="{Binding Maerz}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Apr" Binding="{Binding April}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Mai" Binding="{Binding Mai}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Jun" Binding="{Binding Juni}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Jul" Binding="{Binding Juli}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Aug" Binding="{Binding August}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Sep" Binding="{Binding September}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Okt" Binding="{Binding Oktober}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Nov" Binding="{Binding November}" Width="40"/>
+                        <DataGridCheckBoxColumn Header="Dez" Binding="{Binding Dezember}" Width="40"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </Window>

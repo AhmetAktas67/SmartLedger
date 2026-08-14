@@ -23,6 +23,8 @@ namespace SmartLedger.ViewModels
         public decimal NeuerBeitrag { get; set; }
 
         public ICommand AddMitgliedCommand { get; set; }
+        public ICommand DeleteMitgliedCommand { get; set; }
+
 
         public MainViewModel()
         {
@@ -35,6 +37,7 @@ namespace SmartLedger.ViewModels
             LadeAlles();  // <== ersetzt die alte foreach-Schleife, die hier vorher stand
 
             AddMitgliedCommand = new RelayCommand(AddMitglied);
+            DeleteMitgliedCommand = new RelayCommand<MitgliedViewModel>(DeleteMitglied);
         }
 
         private void LadeAlles()
@@ -73,6 +76,14 @@ namespace SmartLedger.ViewModels
             _beitragsRepository.ErstelleJahrFuerMitglied(neuesMitglied.Id, DateTime.Now.Year);
 
             LadeAlles();  // <== GEÄNDERT (vorher: Mitglieder.Add(new MitgliedViewModel(neuesMitglied));)
+        }
+
+        private void DeleteMitglied(MitgliedViewModel mitgliedVm)
+        {
+            if (mitgliedVm == null) return;
+
+            _repository.Loeschen(mitgliedVm.Id);
+            LadeAlles();
         }
     }
 }
