@@ -6,7 +6,14 @@
         xmlns:local="clr-namespace:SmartLedger"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+    
+    <DataGrid ItemsSource="{Binding Mitglieder}" 
+          AutoGenerateColumns="False"
+          Margin="10">
+        <DataGrid.Columns>
+            <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
+            <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
+            <DataGridTextColumn Header="Monatsbeitrag" Binding="{Binding Monatsbeitrag}" Width="*"/>
+        </DataGrid.Columns>
+    </DataGrid>
 </Window>
