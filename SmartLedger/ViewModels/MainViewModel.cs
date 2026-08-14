@@ -1,4 +1,5 @@
 ﻿using SmartLedger.Models;
+using SmartLedger.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,32 +11,20 @@ namespace SmartLedger.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        private MitgliedRepository _repository;
+
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
 
         public MainViewModel()
         {
+            _repository = new MitgliedRepository();
             Mitglieder = new ObservableCollection<MitgliedViewModel>();
 
-            Mitglieder.Add(new MitgliedViewModel(new Mitglied
+            var alleMitglieder = _repository.GetAlle();
+            foreach (var mitglied in alleMitglieder)
             {
-                Vorname = "Hans",
-                Nachname = "Müller",
-                Monatsbeitrag = 10
-            }));
-
-            Mitglieder.Add(new MitgliedViewModel(new Mitglied
-            {
-                Vorname = "Erika",
-                Nachname = "Müller",
-                Monatsbeitrag = 50
-            }));
-
-            Mitglieder.Add(new MitgliedViewModel(new Mitglied
-            {
-                Vorname = "Peter",
-                Nachname = "Schmidt",
-                Monatsbeitrag = 10
-            }));
+                Mitglieder.Add(new MitgliedViewModel(mitglied));
+            }
         }
     }
 }
