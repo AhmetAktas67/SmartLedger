@@ -15,7 +15,8 @@ namespace SmartLedger.Services
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=smartledger.db");
+            string dbPath = System.IO.Path.Combine(AppContext.BaseDirectory, "smartledger.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
     }
 }
