@@ -12,6 +12,7 @@ namespace SmartLedger.Services
     public class SmartLedgerDbContext : DbContext
     {
         public DbSet<Mitglied> Mitglieder { get; set; }
+        public DbSet<Beitragszahlung> Beitragszahlungen { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
