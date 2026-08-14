@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37516.0 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartLedger", "SmartLedger\SmartLedger.csproj", "{A21EB609-D684-43F3-A8EA-EFA10A4FE0BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A21EB609-D684-43F3-A8EA-EFA10A4FE0BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A21EB609-D684-43F3-A8EA-EFA10A4FE0BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A21EB609-D684-43F3-A8EA-EFA10A4FE0BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A21EB609-D684-43F3-A8EA-EFA10A4FE0BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EAD39AB9-F541-4EAC-B0B1-A8D69590DAE6}
+	EndGlobalSection
+EndGlobal
