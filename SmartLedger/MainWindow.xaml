@@ -6,14 +6,23 @@
         xmlns:local="clr-namespace:SmartLedger"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    
-    <DataGrid ItemsSource="{Binding Mitglieder}" 
-          AutoGenerateColumns="False"
-          Margin="10">
-        <DataGrid.Columns>
-            <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
-            <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
-            <DataGridTextColumn Header="Monatsbeitrag" Binding="{Binding Monatsbeitrag}" Width="*"/>
-        </DataGrid.Columns>
-    </DataGrid>
+
+    <DockPanel Margin="10">
+
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Width="80" Margin="0,0,5,0" Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Content="Hinzufügen" Command="{Binding AddMitgliedCommand}" Width="100" />
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding Mitglieder}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
+                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
+                <DataGridTextColumn Header="Monatsbeitrag" Binding="{Binding Monatsbeitrag}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </DockPanel>
 </Window>

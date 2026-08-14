@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace SmartLedger.ViewModels
 {
@@ -14,6 +15,12 @@ namespace SmartLedger.ViewModels
         private MitgliedRepository _repository;
 
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
+
+        public string NeuerVorname { get; set; }
+        public string NeuerNachname { get; set; }
+        public decimal NeuerBeitrag { get; set; }
+
+        public ICommand AddMitgliedCommand { get; set; }
 
         public MainViewModel()
         {
@@ -25,6 +32,21 @@ namespace SmartLedger.ViewModels
             {
                 Mitglieder.Add(new MitgliedViewModel(mitglied));
             }
+
+            AddMitgliedCommand = new RelayCommand(AddMitglied);
+        }
+
+        private void AddMitglied()
+        {
+            var neuesMitglied = new Mitglied
+            {
+                Vorname = NeuerVorname,
+                Nachname = NeuerNachname,
+                Monatsbeitrag = NeuerBeitrag
+            };
+
+            _repository.Speichern(neuesMitglied);
+            Mitglieder.Add(new MitgliedViewModel(neuesMitglied));
         }
     }
 }
