@@ -104,11 +104,12 @@ namespace SmartLedger.ViewModels
             LadeAlles();  
 
             AddMitgliedCommand = new RelayCommand(AddOderUpdateMitglied);
-            DeleteMitgliedCommand = new RelayCommand<MitgliedViewModel>(DeleteMitglied);
-            EditMitgliedCommand = new RelayCommand<MitgliedViewModel>(StarteBearbeitung);
+            DeleteMitgliedCommand = new RelayCommand<int>(DeleteMitglied);
+            EditMitgliedCommand = new RelayCommand<int>(StarteBearbeitung);
             NavigateCommand = new RelayCommand<string>(seite => AktuelleSeite = int.Parse(seite));
         }
 
+       
         private void LadeAlles()
         {
             Mitglieder.Clear();
@@ -127,17 +128,15 @@ namespace SmartLedger.ViewModels
 
                 if (zahlungenDesMitglieds.Count == 12)
                 {
-                    Beitragsmatrix.Add(new MitgliedMitZahlungenViewModel(mitglied, zahlungenDesMitglieds));
+                    Beitragsmatrix.Add(new MitgliedMitZahlungenViewModel(mitglied, zahlungenDesMitglieds, _beitragsRepository));
                 }
             }
         }
 
-        private void StarteBearbeitung(MitgliedViewModel mitgliedVm)
+        private void StarteBearbeitung(int mitgliedId)
         {
-            if (mitgliedVm == null) return;
-
             var alleMitglieder = _repository.GetAlle();
-            _bearbeitetesMitglied = alleMitglieder.First(m => m.Id == mitgliedVm.Id);
+            _bearbeitetesMitglied = alleMitglieder.First(m => m.Id == mitgliedId);
 
             NeuerVorname = _bearbeitetesMitglied.Vorname;
             OnPropertyChanged(nameof(NeuerVorname));
@@ -150,6 +149,7 @@ namespace SmartLedger.ViewModels
 
             ButtonText = "Speichern";
         }
+
 
         private void AddOderUpdateMitglied()
         {
@@ -205,11 +205,9 @@ namespace SmartLedger.ViewModels
             LadeAlles();
         }
 
-        private void DeleteMitglied(MitgliedViewModel mitgliedVm)
+        private void DeleteMitglied(int mitgliedId)
         {
-            if (mitgliedVm == null) return;
-
-            _repository.Loeschen(mitgliedVm.Id);
+            _repository.Loeschen(mitgliedId);
             LadeAlles();
         }
     }

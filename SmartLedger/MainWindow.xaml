@@ -6,13 +6,15 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:conv="clr-namespace:SmartLedger.Converters"
         mc:Ignorable="d"
-        Title="SmartLedger" Height="700" Width="1300"
+        Title="SmartLedger" Height="700" Width="1350"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round">
 
     <ui:FluentWindow.Resources>
         <conv:PageVisibilityConverter x:Key="PageVisibilityConverter"/>
+        <conv:StatusToTextConverter x:Key="StatusToTextConverter"/>
+        <conv:StatusToBackgroundConverter x:Key="StatusToBackgroundConverter"/>
 
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#2B2B2B"/>
@@ -111,45 +113,170 @@
                             <TextBlock Text="Mitglied erfassen" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
                             <StackPanel Orientation="Horizontal">
                                 <ComboBox Width="90" Margin="0,0,12,0"
-                                          ItemsSource="{Binding VerfuegbareJahre}"
-                                          SelectedItem="{Binding AusgewaehltesJahr}" />
+                          ItemsSource="{Binding VerfuegbareJahre}"
+                          SelectedItem="{Binding AusgewaehltesJahr}" />
                                 <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Vorname"
-                                            Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
                                 <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Nachname"
-                                            Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
                                 <ui:TextBox Width="110" Margin="0,0,12,0" PlaceholderText="Beitrag €"
-                                            Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
                                 <ui:Button Content="{Binding ButtonText}" Appearance="Primary"
-                                           Icon="{ui:SymbolIcon PersonAdd24}"
-                                           Command="{Binding AddMitgliedCommand}" Width="130" />
+                           Icon="{ui:SymbolIcon PersonAdd24}"
+                           Command="{Binding AddMitgliedCommand}" Width="130" />
                             </StackPanel>
                             <TextBlock Text="{Binding FehlerText}" Foreground="{DynamicResource SystemFillColorCriticalBrush}" Margin="0,10,0,0" FontWeight="Medium"/>
                         </StackPanel>
                     </ui:Card>
 
+                    <!-- <== NEU: kombinierte Tabelle, bindet an Beitragsmatrix statt Mitglieder -->
                     <ui:Card Grid.Row="1" Padding="0">
-                        <DataGrid ItemsSource="{Binding Mitglieder}" AutoGenerateColumns="False"
-                                  Background="Transparent" BorderThickness="0" RowHeight="42"
-                                  GridLinesVisibility="Horizontal" Margin="8">
+                        <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False"
+                  Background="Transparent" BorderThickness="0" RowHeight="42"
+                  GridLinesVisibility="Horizontal" Margin="8">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
-                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
-                                <DataGridTextColumn Header="Monatsbeitrag (€)" Binding="{Binding Monatsbeitrag}" Width="*"/>
-                                <DataGridTemplateColumn Header="Bearbeiten" Width="120">
+                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="90"/>
+                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="90"/>
+                                <DataGridTextColumn Header="Beitrag (€)" Binding="{Binding Monatsbeitrag}" Width="80"/>
+                                <DataGridTextColumn Header="Haushalt" Binding="{Binding Haushaltsgruppe}" Width="80"/>
+
+                                <!-- <== NEU: 12 Status-Buttons statt Checkboxen -->
+                                <DataGridTemplateColumn Header="Jan" Width="40">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ui:Button Content="Bearbeiten" Appearance="Secondary" Icon="{ui:SymbolIcon Edit24}"
-                                                       Command="{Binding DataContext.EditMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                       CommandParameter="{Binding}" />
+                                            <Button Content="{Binding Januar, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Januar, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="1"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Löschen" Width="120">
+                                <DataGridTemplateColumn Header="Feb" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Februar, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Februar, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="2"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Mär" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Maerz, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Maerz, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="3"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Apr" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding April, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding April, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="4"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Mai" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Mai, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Mai, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="5"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Jun" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Juni, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Juni, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="6"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Jul" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Juli, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Juli, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="7"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Aug" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding August, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding August, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="8"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Sep" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding September, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding September, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="9"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Okt" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Oktober, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Oktober, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="10"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Nov" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding November, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding November, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="11"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Dez" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Dezember, Converter={StaticResource StatusToTextConverter}}"
+                                    Background="{Binding Dezember, Converter={StaticResource StatusToBackgroundConverter}}"
+                                    Foreground="White" BorderThickness="0" Margin="2"
+                                    Command="{Binding ToggleMonatCommand}" CommandParameter="12"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTemplateColumn Header="Bearbeiten" Width="110">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ui:Button Content="Bearbeiten" Appearance="Secondary" Icon="{ui:SymbolIcon Edit24}"
+                                       Command="{Binding DataContext.EditMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                       CommandParameter="{Binding Id}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Löschen" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <ui:Button Content="Löschen" Appearance="Danger" Icon="{ui:SymbolIcon Delete24}"
-                                                       Command="{Binding DataContext.DeleteMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                       CommandParameter="{Binding}" />
+                                       Command="{Binding DataContext.DeleteMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                       CommandParameter="{Binding Id}" />
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -160,28 +287,7 @@
 
                 <!-- Seite 2: Beitragsmatrix -->
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=2}">
-                    <ui:Card Padding="0">
-                        <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False"
-                                  Background="Transparent" BorderThickness="0" RowHeight="38"
-                                  GridLinesVisibility="Horizontal" Margin="8">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="100"/>
-                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="100"/>
-                                <DataGridCheckBoxColumn Header="Jan" Binding="{Binding Januar}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Feb" Binding="{Binding Februar}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Mär" Binding="{Binding Maerz}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Apr" Binding="{Binding April}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Mai" Binding="{Binding Mai}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Jun" Binding="{Binding Juni}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Jul" Binding="{Binding Juli}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Aug" Binding="{Binding August}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Sep" Binding="{Binding September}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Okt" Binding="{Binding Oktober}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Nov" Binding="{Binding November}" Width="45"/>
-                                <DataGridCheckBoxColumn Header="Dez" Binding="{Binding Dezember}" Width="45"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ui:Card>
+                    <TextBlock Text="Die Beitragsmatrix ist jetzt direkt in der Mitglieder-Ansicht integriert." FontSize="16" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
 
                 <!-- Seite 3: Auswertungen (Platzhalter) -->
