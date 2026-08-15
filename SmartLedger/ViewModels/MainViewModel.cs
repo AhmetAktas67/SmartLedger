@@ -135,6 +135,11 @@ namespace SmartLedger.ViewModels
                     OnPropertyChanged(nameof(VorschlaegeKI));
                 }
             });
+
+            var testService = new KontoauszugService();
+            string pdfPfad = @"C:\Users\ahmet\OneDrive\Desktop\kontoauszug.pdf";
+            string testErgebnis = testService.TesteImport(pdfPfad);
+            System.Windows.MessageBox.Show(testErgebnis);
         }
 
        
