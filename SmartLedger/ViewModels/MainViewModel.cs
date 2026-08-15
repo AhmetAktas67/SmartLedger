@@ -22,6 +22,17 @@ namespace SmartLedger.ViewModels
 
         public ObservableCollection<int> VerfuegbareJahre { get; set; }
 
+        private string _fehlerText;
+        public string FehlerText
+        {
+            get => _fehlerText;
+            set
+            {
+                _fehlerText = value;
+                OnPropertyChanged(nameof(FehlerText));
+            }
+        }
+
         private int _ausgewaehltesJahr; 
         public int AusgewaehltesJahr
         {
@@ -124,6 +135,21 @@ namespace SmartLedger.ViewModels
 
         private void AddOderUpdateMitglied()
         {
+            if (string.IsNullOrWhiteSpace(NeuerVorname) || string.IsNullOrWhiteSpace(NeuerNachname))
+            {
+                FehlerText = "Vorname und Nachname dürfen nicht leer sein.";
+                return;
+            }
+
+            if (NeuerBeitrag <= 0)
+            {
+                FehlerText = "Der Monatsbeitrag muss größer als 0 sein.";
+                return;
+            }
+
+            FehlerText = "";
+
+
             if (_bearbeitetesMitglied != null)
             {
                
