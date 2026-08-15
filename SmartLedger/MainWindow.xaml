@@ -9,7 +9,6 @@
 
     <DockPanel Margin="10">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
-            
             <ComboBox Width="80" Margin="0,0,15,0"
                       ItemsSource="{Binding VerfuegbareJahre}"
                       SelectedItem="{Binding AusgewaehltesJahr}" />
@@ -17,7 +16,8 @@
             <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
             <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
             <TextBox Width="80" Margin="0,0,5,0" Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
-            <Button Content="Hinzufügen" Command="{Binding AddMitgliedCommand}" Width="100" />
+            <!-- <== GEÄNDERT: Content bindet jetzt an ButtonText statt fest "Hinzufügen" -->
+            <Button Content="{Binding ButtonText}" Command="{Binding AddMitgliedCommand}" Width="100" />
         </StackPanel>
 
         <TabControl>
@@ -27,6 +27,16 @@
                         <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
                         <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
                         <DataGridTextColumn Header="Monatsbeitrag" Binding="{Binding Monatsbeitrag}" Width="*"/>
+                       
+                        <DataGridTemplateColumn Header="Bearbeiten" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Bearbeiten" 
+                                Command="{Binding DataContext.EditMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="Aktion" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

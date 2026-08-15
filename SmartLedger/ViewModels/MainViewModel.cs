@@ -15,6 +15,8 @@ namespace SmartLedger.ViewModels
         private MitgliedRepository _repository;
         private BeitragszahlungRepository _beitragsRepository;
 
+        private Mitglied _bearbeitetesMitglied;
+
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
         public ObservableCollection<MitgliedMitZahlungenViewModel> Beitragsmatrix { get; set; }
 
@@ -37,9 +39,21 @@ namespace SmartLedger.ViewModels
         public string NeuerNachname { get; set; }
         public decimal NeuerBeitrag { get; set; }
 
+        private string _buttonText = "Hinzufügen";
+        public string ButtonText
+        {
+            get => _buttonText;
+            set
+            {
+                _buttonText = value;
+                OnPropertyChanged(nameof(ButtonText));
+            }
+        }
+
         public ICommand AddMitgliedCommand { get; set; }
         public ICommand DeleteMitgliedCommand { get; set; }
 
+        public ICommand EditMitgliedCommand { get; set; }
 
         public MainViewModel()
         {
@@ -61,8 +75,9 @@ namespace SmartLedger.ViewModels
 
             LadeAlles();  
 
-            AddMitgliedCommand = new RelayCommand(AddMitglied);
+            AddMitgliedCommand = new RelayCommand(AddOderUpdateMitglied);
             DeleteMitgliedCommand = new RelayCommand<MitgliedViewModel>(DeleteMitglied);
+            EditMitgliedCommand = new RelayCommand<MitgliedViewModel>(StarteBearbeitung);
         }
 
         private void LadeAlles()
@@ -88,19 +103,62 @@ namespace SmartLedger.ViewModels
             }
         }
 
-        private void AddMitglied()
+        private void StarteBearbeitung(MitgliedViewModel mitgliedVm)
         {
-            var neuesMitglied = new Mitglied
+            if (mitgliedVm == null) return;
+
+            var alleMitglieder = _repository.GetAlle();
+            _bearbeitetesMitglied = alleMitglieder.First(m => m.Id == mitgliedVm.Id);
+
+            NeuerVorname = _bearbeitetesMitglied.Vorname;
+            OnPropertyChanged(nameof(NeuerVorname));
+
+            NeuerNachname = _bearbeitetesMitglied.Nachname;
+            OnPropertyChanged(nameof(NeuerNachname));
+
+            NeuerBeitrag = _bearbeitetesMitglied.Monatsbeitrag;
+            OnPropertyChanged(nameof(NeuerBeitrag));
+
+            ButtonText = "Speichern";
+        }
+
+        private void AddOderUpdateMitglied()
+        {
+            if (_bearbeitetesMitglied != null)
             {
-                Vorname = NeuerVorname,
-                Nachname = NeuerNachname,
-                Monatsbeitrag = NeuerBeitrag
-            };
+               
+                _bearbeitetesMitglied.Vorname = NeuerVorname;
+                _bearbeitetesMitglied.Nachname = NeuerNachname;
+                _bearbeitetesMitglied.Monatsbeitrag = NeuerBeitrag;
 
-            _repository.Speichern(neuesMitglied);
-            _beitragsRepository.ErstelleJahrFuerMitglied(neuesMitglied.Id, AusgewaehltesJahr);
+                _repository.Aktualisieren(_bearbeitetesMitglied);
 
-            LadeAlles();  
+                _bearbeitetesMitglied = null;
+                ButtonText = "Hinzufügen";
+            }
+            else
+            {
+                
+                var neuesMitglied = new Mitglied
+                {
+                    Vorname = NeuerVorname,
+                    Nachname = NeuerNachname,
+                    Monatsbeitrag = NeuerBeitrag
+                };
+
+                _repository.Speichern(neuesMitglied);
+                _beitragsRepository.ErstelleJahrFuerMitglied(neuesMitglied.Id, AusgewaehltesJahr);
+            }
+
+            
+            NeuerVorname = "";
+            OnPropertyChanged(nameof(NeuerVorname));
+            NeuerNachname = "";
+            OnPropertyChanged(nameof(NeuerNachname));
+            NeuerBeitrag = 0;
+            OnPropertyChanged(nameof(NeuerBeitrag));
+
+            LadeAlles();
         }
 
         private void DeleteMitglied(MitgliedViewModel mitgliedVm)

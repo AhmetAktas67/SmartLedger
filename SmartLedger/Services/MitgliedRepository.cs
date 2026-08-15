@@ -16,6 +16,13 @@ namespace SmartLedger.Services
             return db.Mitglieder.ToList();
         }
 
+        public void Aktualisieren(Mitglied mitglied)
+        {
+            using var db = new SmartLedgerDbContext();
+            db.Mitglieder.Update(mitglied);
+            db.SaveChanges();
+        }
+
         public void Speichern(Mitglied mitglied)
         {
             using var db = new SmartLedgerDbContext();
