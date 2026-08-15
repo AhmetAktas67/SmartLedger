@@ -4,14 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:conv="clr-namespace:SmartLedger.Converters"
         mc:Ignorable="d"
-        Title="SmartLedger" Height="650" Width="1100"
+        Title="SmartLedger" Height="700" Width="1300"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round">
 
     <ui:FluentWindow.Resources>
-        <!-- <== GEÄNDERT: globaler dunkler Header-Style statt hellem Default -->
+        <conv:PageVisibilityConverter x:Key="PageVisibilityConverter"/>
+
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#2B2B2B"/>
             <Setter Property="Foreground" Value="White"/>
@@ -22,19 +24,33 @@
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
         </Style>
 
-        <!--  Zellen dunkel -->
         <Style TargetType="DataGridCell">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <!--  Zeilen mit Hover-Effekt -->
         <Style TargetType="DataGridRow">
             <Setter Property="Background" Value="Transparent"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#333333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NavButtonStyle" TargetType="ui:Button">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="8,2"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2A2A2A"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -46,66 +62,75 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Titelleiste -->
         <ui:TitleBar Grid.Row="0" Title="SmartLedger">
             <ui:TitleBar.Header>
-                <TextBlock Text="💶 SmartLedger — Beitragsverwaltung" Margin="12,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
+                <TextBlock Text="💶 SmartLedger" Margin="12,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
             </ui:TitleBar.Header>
         </ui:TitleBar>
 
-        <Grid Grid.Row="1" Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <!--  Grid mit Sidebar links + Content rechts -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Formular-Card -->
-            <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="16">
-                <StackPanel>
-                    <TextBlock Text="Mitglied erfassen" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
-
-                    <StackPanel Orientation="Horizontal">
-                        <ComboBox Width="90" Margin="0,0,12,0"
-                                  ItemsSource="{Binding VerfuegbareJahre}"
-                                  SelectedItem="{Binding AusgewaehltesJahr}" />
-
-                        <ui:TextBox Width="160" Margin="0,0,12,0"
-                                    PlaceholderText="Vorname"
-                                    Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <ui:TextBox Width="160" Margin="0,0,12,0"
-                                    PlaceholderText="Nachname"
-                                    Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <ui:TextBox Width="110" Margin="0,0,12,0"
-                                    PlaceholderText="Beitrag €"
-                                    Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <ui:Button Content="{Binding ButtonText}"
-                                   Appearance="Primary"
-                                   Icon="{ui:SymbolIcon PersonAdd24}"
-                                   Command="{Binding AddMitgliedCommand}" 
-                                   Width="130" />
-                    </StackPanel>
-
-                    <TextBlock Text="{Binding FehlerText}" 
-                               Foreground="{DynamicResource SystemFillColorCriticalBrush}" 
-                               Margin="0,10,0,0" 
-                               FontWeight="Medium"/>
+            <!--  Sidebar -->
+            <Border Grid.Column="0" Background="#1A1A1A" BorderBrush="#2B2B2B" BorderThickness="0,0,1,0">
+                <StackPanel Margin="0,16">
+                    <ui:Button Content="🏠  Dashboard" Style="{StaticResource NavButtonStyle}"
+                               Command="{Binding NavigateCommand}" CommandParameter="0"/>
+                    <ui:Button Content="👥  Mitglieder" Style="{StaticResource NavButtonStyle}"
+                               Command="{Binding NavigateCommand}" CommandParameter="1"/>
+                    <ui:Button Content="📋  Beitragsmatrix" Style="{StaticResource NavButtonStyle}"
+                               Command="{Binding NavigateCommand}" CommandParameter="2"/>
+                    <ui:Button Content="📊  Auswertungen" Style="{StaticResource NavButtonStyle}"
+                               Command="{Binding NavigateCommand}" CommandParameter="3"/>
+                    <ui:Button Content="⚙️  Einstellungen" Style="{StaticResource NavButtonStyle}"
+                               Command="{Binding NavigateCommand}" CommandParameter="4"/>
                 </StackPanel>
-            </ui:Card>
+            </Border>
 
-            <!-- Tabs -->
-            <ui:Card Grid.Row="1" Padding="0">
-                <TabControl Background="Transparent" BorderThickness="0">
-                    <TabItem Header="Mitglieder">
-                        <DataGrid ItemsSource="{Binding Mitglieder}" 
-                                  AutoGenerateColumns="False"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  RowHeight="42"
-                                  GridLinesVisibility="Horizontal"
-                                  Margin="8">
+           
+            <Grid Grid.Column="1" Margin="20">
+
+                <!-- Seite 0: Dashboard (Platzhalter) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=0}">
+                    <TextBlock Text="Dashboard folgt in Etappe 3" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Seite 1: Mitglieder -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=1}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="Mitglied erfassen" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox Width="90" Margin="0,0,12,0"
+                                          ItemsSource="{Binding VerfuegbareJahre}"
+                                          SelectedItem="{Binding AusgewaehltesJahr}" />
+                                <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Vorname"
+                                            Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
+                                <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Nachname"
+                                            Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
+                                <ui:TextBox Width="110" Margin="0,0,12,0" PlaceholderText="Beitrag €"
+                                            Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
+                                <ui:Button Content="{Binding ButtonText}" Appearance="Primary"
+                                           Icon="{ui:SymbolIcon PersonAdd24}"
+                                           Command="{Binding AddMitgliedCommand}" Width="130" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding FehlerText}" Foreground="{DynamicResource SystemFillColorCriticalBrush}" Margin="0,10,0,0" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ui:Card>
+
+                    <ui:Card Grid.Row="1" Padding="0">
+                        <DataGrid ItemsSource="{Binding Mitglieder}" AutoGenerateColumns="False"
+                                  Background="Transparent" BorderThickness="0" RowHeight="42"
+                                  GridLinesVisibility="Horizontal" Margin="8">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
                                 <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
@@ -113,9 +138,7 @@
                                 <DataGridTemplateColumn Header="Bearbeiten" Width="120">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ui:Button Content="Bearbeiten"
-                                                       Appearance="Secondary"
-                                                       Icon="{ui:SymbolIcon Edit24}"
+                                            <ui:Button Content="Bearbeiten" Appearance="Secondary" Icon="{ui:SymbolIcon Edit24}"
                                                        Command="{Binding DataContext.EditMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                        CommandParameter="{Binding}" />
                                         </DataTemplate>
@@ -124,9 +147,7 @@
                                 <DataGridTemplateColumn Header="Löschen" Width="120">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <ui:Button Content="Löschen"
-                                                       Appearance="Danger"
-                                                       Icon="{ui:SymbolIcon Delete24}"
+                                            <ui:Button Content="Löschen" Appearance="Danger" Icon="{ui:SymbolIcon Delete24}"
                                                        Command="{Binding DataContext.DeleteMitgliedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                        CommandParameter="{Binding}" />
                                         </DataTemplate>
@@ -134,16 +155,15 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
-                    </TabItem>
+                    </ui:Card>
+                </Grid>
 
-                    <TabItem Header="Beitragsmatrix">
-                        <DataGrid ItemsSource="{Binding Beitragsmatrix}" 
-                                  AutoGenerateColumns="False"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  RowHeight="38"
-                                  GridLinesVisibility="Horizontal"
-                                  Margin="8">
+                <!-- Seite 2: Beitragsmatrix -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=2}">
+                    <ui:Card Padding="0">
+                        <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False"
+                                  Background="Transparent" BorderThickness="0" RowHeight="38"
+                                  GridLinesVisibility="Horizontal" Margin="8">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="100"/>
                                 <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="100"/>
@@ -161,9 +181,20 @@
                                 <DataGridCheckBoxColumn Header="Dez" Binding="{Binding Dezember}" Width="45"/>
                             </DataGrid.Columns>
                         </DataGrid>
-                    </TabItem>
-                </TabControl>
-            </ui:Card>
+                    </ui:Card>
+                </Grid>
+
+                <!-- Seite 3: Auswertungen (Platzhalter) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=3}">
+                    <TextBlock Text="Auswertungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Seite 4: Einstellungen (Platzhalter) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=4}">
+                    <TextBlock Text="Einstellungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+            </Grid>
         </Grid>
     </Grid>
 </ui:FluentWindow>

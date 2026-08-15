@@ -22,6 +22,21 @@ namespace SmartLedger.ViewModels
 
         public ObservableCollection<int> VerfuegbareJahre { get; set; }
 
+
+        private int _aktuelleSeite = 1; 
+        public int AktuelleSeite
+        {
+            get => _aktuelleSeite;
+            set
+            {
+                _aktuelleSeite = value;
+                OnPropertyChanged(nameof(AktuelleSeite));
+            }
+        }
+
+
+
+
         private string _fehlerText;
         public string FehlerText
         {
@@ -64,6 +79,8 @@ namespace SmartLedger.ViewModels
         public ICommand AddMitgliedCommand { get; set; }
         public ICommand DeleteMitgliedCommand { get; set; }
 
+        public ICommand NavigateCommand { get; set; }
+
         public ICommand EditMitgliedCommand { get; set; }
 
         public MainViewModel()
@@ -89,6 +106,7 @@ namespace SmartLedger.ViewModels
             AddMitgliedCommand = new RelayCommand(AddOderUpdateMitglied);
             DeleteMitgliedCommand = new RelayCommand<MitgliedViewModel>(DeleteMitglied);
             EditMitgliedCommand = new RelayCommand<MitgliedViewModel>(StarteBearbeitung);
+            NavigateCommand = new RelayCommand<string>(seite => AktuelleSeite = int.Parse(seite));
         }
 
         private void LadeAlles()
