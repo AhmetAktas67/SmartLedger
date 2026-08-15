@@ -9,13 +9,17 @@
 
     <DockPanel Margin="10">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+            
+            <ComboBox Width="80" Margin="0,0,15,0"
+                      ItemsSource="{Binding VerfuegbareJahre}"
+                      SelectedItem="{Binding AusgewaehltesJahr}" />
+
             <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
             <TextBox Width="120" Margin="0,0,5,0" Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
             <TextBox Width="80" Margin="0,0,5,0" Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
             <Button Content="Hinzufügen" Command="{Binding AddMitgliedCommand}" Width="100" />
         </StackPanel>
 
-       
         <TabControl>
             <TabItem Header="Mitglieder">
                 <DataGrid ItemsSource="{Binding Mitglieder}" AutoGenerateColumns="False">
@@ -35,8 +39,6 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>
-
-
             <TabItem Header="Beitragsmatrix">
                 <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False">
                     <DataGrid.Columns>

@@ -18,6 +18,21 @@ namespace SmartLedger.ViewModels
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
         public ObservableCollection<MitgliedMitZahlungenViewModel> Beitragsmatrix { get; set; }
 
+        public ObservableCollection<int> VerfuegbareJahre { get; set; }
+
+        private int _ausgewaehltesJahr; 
+        public int AusgewaehltesJahr
+        {
+            get => _ausgewaehltesJahr;
+            set
+            {
+                _ausgewaehltesJahr = value;
+                OnPropertyChanged(nameof(AusgewaehltesJahr));
+                LadeAlles();
+            }
+        }
+
+
         public string NeuerVorname { get; set; }
         public string NeuerNachname { get; set; }
         public decimal NeuerBeitrag { get; set; }
@@ -29,12 +44,22 @@ namespace SmartLedger.ViewModels
         public MainViewModel()
         {
             _repository = new MitgliedRepository();
-            _beitragsRepository = new BeitragszahlungRepository();  // <== GEFEHLT
+            _beitragsRepository = new BeitragszahlungRepository();  
 
             Mitglieder = new ObservableCollection<MitgliedViewModel>();
-            Beitragsmatrix = new ObservableCollection<MitgliedMitZahlungenViewModel>();  // <== GEFEHLT
+            Beitragsmatrix = new ObservableCollection<MitgliedMitZahlungenViewModel>();
 
-            LadeAlles();  // <== ersetzt die alte foreach-Schleife, die hier vorher stand
+            VerfuegbareJahre = new ObservableCollection<int>();
+            int aktuellesJahr = DateTime.Now.Year;
+            for (int jahr = aktuellesJahr - 2; jahr <= aktuellesJahr + 1; jahr++)
+            {
+                VerfuegbareJahre.Add(jahr);
+            }
+
+            _ausgewaehltesJahr = aktuellesJahr;
+
+
+            LadeAlles();  
 
             AddMitgliedCommand = new RelayCommand(AddMitglied);
             DeleteMitgliedCommand = new RelayCommand<MitgliedViewModel>(DeleteMitglied);
@@ -46,7 +71,7 @@ namespace SmartLedger.ViewModels
             Beitragsmatrix.Clear();
 
             var alleMitglieder = _repository.GetAlle();
-            var alleZahlungen = _beitragsRepository.GetFuerJahr(DateTime.Now.Year);
+            var alleZahlungen = _beitragsRepository.GetFuerJahr(AusgewaehltesJahr);
 
             foreach (var mitglied in alleMitglieder)
             {
@@ -73,9 +98,9 @@ namespace SmartLedger.ViewModels
             };
 
             _repository.Speichern(neuesMitglied);
-            _beitragsRepository.ErstelleJahrFuerMitglied(neuesMitglied.Id, DateTime.Now.Year);
+            _beitragsRepository.ErstelleJahrFuerMitglied(neuesMitglied.Id, AusgewaehltesJahr);
 
-            LadeAlles();  // <== GEÄNDERT (vorher: Mitglieder.Add(new MitgliedViewModel(neuesMitglied));)
+            LadeAlles();  
         }
 
         private void DeleteMitglied(MitgliedViewModel mitgliedVm)
