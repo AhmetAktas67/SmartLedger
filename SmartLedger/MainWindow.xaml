@@ -129,8 +129,8 @@
                         </StackPanel>
                     </ui:Card>
 
-                    <!-- <== NEU: kombinierte Tabelle, bindet an Beitragsmatrix statt Mitglieder -->
-                    <ui:Card Grid.Row="1" Padding="0">
+                    <!--  kombinierte Tabelle, bindet an Beitragsmatrix statt Mitglieder -->
+                    <ui:Card Grid.Row="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
                         <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False"
                   Background="Transparent" BorderThickness="0" RowHeight="42"
                   GridLinesVisibility="Horizontal" Margin="8">
@@ -140,7 +140,7 @@
                                 <DataGridTextColumn Header="Beitrag (€)" Binding="{Binding Monatsbeitrag}" Width="80"/>
                                 <DataGridTextColumn Header="Haushalt" Binding="{Binding Haushaltsgruppe}" Width="80"/>
 
-                                <!-- <== NEU: 12 Status-Buttons statt Checkboxen -->
+                                <!--  12 Status-Buttons statt Checkboxen -->
                                 <DataGridTemplateColumn Header="Jan" Width="40">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
