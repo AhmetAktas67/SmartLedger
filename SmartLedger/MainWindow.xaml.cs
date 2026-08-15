@@ -1,4 +1,5 @@
 ﻿using SmartLedger.ViewModels;
+
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,14 +10,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SmartLedger.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace SmartLedger
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : FluentWindow
     {
         public MainWindow()
         {
