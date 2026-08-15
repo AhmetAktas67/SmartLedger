@@ -84,8 +84,7 @@
                                Command="{Binding NavigateCommand}" CommandParameter="0"/>
                     <ui:Button Content="👥  Mitglieder" Style="{StaticResource NavButtonStyle}"
                                Command="{Binding NavigateCommand}" CommandParameter="1"/>
-                    <ui:Button Content="📋  Beitragsmatrix" Style="{StaticResource NavButtonStyle}"
-                               Command="{Binding NavigateCommand}" CommandParameter="2"/>
+                   
                     <ui:Button Content="📊  Auswertungen" Style="{StaticResource NavButtonStyle}"
                                Command="{Binding NavigateCommand}" CommandParameter="3"/>
                     <ui:Button Content="⚙️  Einstellungen" Style="{StaticResource NavButtonStyle}"
@@ -98,7 +97,44 @@
 
                 <!-- Seite 0: Dashboard (Platzhalter) -->
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=0}">
-                    <TextBlock Text="Dashboard folgt in Etappe 3" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="Dashboard" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Überblick über Mitglieder und Beitragsstatus." Foreground="Gray" FontSize="13" Margin="0,0,0,24"/>
+
+                        <UniformGrid Columns="4" Rows="1">
+                            <ui:Card Margin="0,0,12,0" Padding="20" MinHeight="150">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="People24" FontSize="34" Foreground="#A0A0A0" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding GesamtMitglieder}" FontSize="40" FontWeight="Bold" Margin="0,12,0,0" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Gesamtmitglieder" Foreground="#A0A0A0" FontSize="13" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </ui:Card>
+
+                            <ui:Card Margin="0,0,12,0" Padding="20" MinHeight="150">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="34" Foreground="#10893E" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding BeitraegeBestaetigt}" FontSize="40" FontWeight="Bold" Foreground="#10893E" Margin="0,12,0,0" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Beiträge bestätigt" Foreground="#A0A0A0" FontSize="13" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </ui:Card>
+
+                            <ui:Card Margin="0,0,12,0" Padding="20" MinHeight="150">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="Clock24" FontSize="34" Foreground="#D9A400" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OffeneBeitraege}" FontSize="40" FontWeight="Bold" Foreground="#D9A400" Margin="0,12,0,0" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Offene Beiträge" Foreground="#A0A0A0" FontSize="13" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </ui:Card>
+
+                            <ui:Card Padding="20" MinHeight="150">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="DocumentSearch24" FontSize="34" Foreground="#2563EB" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding VorschlaegeKI}" FontSize="40" FontWeight="Bold" Foreground="#2563EB" Margin="0,12,0,0" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Vorschläge (KI)" Foreground="#A0A0A0" FontSize="13" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </ui:Card>
+                        </UniformGrid>
+                    </StackPanel>
                 </Grid>
 
                 <!-- Seite 1: Mitglieder -->
@@ -285,10 +321,7 @@
                     </ui:Card>
                 </Grid>
 
-                <!-- Seite 2: Beitragsmatrix -->
-                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=2}">
-                    <TextBlock Text="Die Beitragsmatrix ist jetzt direkt in der Mitglieder-Ansicht integriert." FontSize="16" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
+                
 
                 <!-- Seite 3: Auswertungen (Platzhalter) -->
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=3}">

@@ -60,6 +60,24 @@ namespace SmartLedger.ViewModels
             }
         }
 
+        public int GesamtMitglieder => Mitglieder.Count;
+
+        public int BeitraegeBestaetigt => Beitragsmatrix
+        .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
+                                  m.Juli, m.August, m.September, m.Oktober, m.November, m.Dezember })
+        .Count(status => status == ZahlungsStatus.BestaetigtManuell);
+
+            public int OffeneBeitraege => Beitragsmatrix
+                .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
+                                  m.Juli, m.August, m.September, m.Oktober, m.November, m.Dezember })
+                .Count(status => status == ZahlungsStatus.Offen);
+
+            public int VorschlaegeKI => Beitragsmatrix
+                .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
+                                  m.Juli, m.August, m.September, m.Oktober, m.November, m.Dezember })
+                .Count(status => status == ZahlungsStatus.VorschlagKI);
+
+
 
         public string NeuerVorname { get; set; }
         public string NeuerNachname { get; set; }
@@ -106,7 +124,17 @@ namespace SmartLedger.ViewModels
             AddMitgliedCommand = new RelayCommand(AddOderUpdateMitglied);
             DeleteMitgliedCommand = new RelayCommand<int>(DeleteMitglied);
             EditMitgliedCommand = new RelayCommand<int>(StarteBearbeitung);
-            NavigateCommand = new RelayCommand<string>(seite => AktuelleSeite = int.Parse(seite));
+            NavigateCommand = new RelayCommand<string>(seite =>
+            {
+                AktuelleSeite = int.Parse(seite);
+                if (AktuelleSeite == 0) 
+                {
+                    OnPropertyChanged(nameof(GesamtMitglieder));
+                    OnPropertyChanged(nameof(BeitraegeBestaetigt));
+                    OnPropertyChanged(nameof(OffeneBeitraege));
+                    OnPropertyChanged(nameof(VorschlaegeKI));
+                }
+            });
         }
 
        
@@ -131,6 +159,11 @@ namespace SmartLedger.ViewModels
                     Beitragsmatrix.Add(new MitgliedMitZahlungenViewModel(mitglied, zahlungenDesMitglieds, _beitragsRepository));
                 }
             }
+
+            OnPropertyChanged(nameof(GesamtMitglieder));
+            OnPropertyChanged(nameof(BeitraegeBestaetigt));
+            OnPropertyChanged(nameof(OffeneBeitraege));
+            OnPropertyChanged(nameof(VorschlaegeKI));
         }
 
         private void StarteBearbeitung(int mitgliedId)
