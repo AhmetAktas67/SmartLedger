@@ -87,6 +87,10 @@
                    
                     <ui:Button Content="📊  Auswertungen" Style="{StaticResource NavButtonStyle}"
                                Command="{Binding NavigateCommand}" CommandParameter="3"/>
+
+                    <ui:Button Content="📑  Kassenauszug" Style="{StaticResource NavButtonStyle}"
+                    Command="{Binding NavigateCommand}" CommandParameter="2"/>
+                    
                     <ui:Button Content="⚙️  Einstellungen" Style="{StaticResource NavButtonStyle}"
                                Command="{Binding NavigateCommand}" CommandParameter="4"/>
                 </StackPanel>
@@ -336,7 +340,35 @@
                     </ui:Card>
                 </Grid>
 
-                
+
+
+                <!-- Seite 2: Kassenauszug -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=2}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Kassenauszug" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Alle importierten Buchungen aus Kontoauszügen, sortierbar." Foreground="Gray" FontSize="13"/>
+                    </StackPanel>
+
+                    <ui:Card Grid.Row="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                        <DataGrid ItemsSource="{Binding KassenauszugBuchungen}" AutoGenerateColumns="False"
+                  Background="Transparent" BorderThickness="0" RowHeight="42"
+                  GridLinesVisibility="Horizontal" Margin="8"
+                  CanUserSortColumns="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Datum" Binding="{Binding BuchungsDatum, StringFormat=dd.MM.yyyy}" Width="120"/>
+                                <DataGridTextColumn Header="Verwendungszweck" Binding="{Binding Verwendungszweck}" Width="*"/>
+                                <DataGridTextColumn Header="Betrag (€)" Binding="{Binding Betrag, StringFormat=F2}" Width="100"/>
+                                <DataGridTextColumn Header="Zugeordnet" Binding="{Binding ZugeordneteMitgliederNamen}" Width="200"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ui:Card>
+                </Grid>
+
 
                 <!-- Seite 3: Auswertungen (Platzhalter) -->
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=3}">

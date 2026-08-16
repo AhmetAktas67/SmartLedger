@@ -14,6 +14,8 @@ namespace SmartLedger.Services
         public DbSet<Mitglied> Mitglieder { get; set; }
         public DbSet<Beitragszahlung> Beitragszahlungen { get; set; }
 
+        public DbSet<Buchung> Buchungen { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string dbPath = System.IO.Path.Combine(AppContext.BaseDirectory, "smartledger.db");

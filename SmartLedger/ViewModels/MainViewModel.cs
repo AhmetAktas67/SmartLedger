@@ -13,6 +13,8 @@ namespace SmartLedger.ViewModels
     public class MainViewModel : BaseViewModel
     {
         private MitgliedRepository _repository;
+        private BuchungRepository _buchungRepository;
+
         private BeitragszahlungRepository _beitragsRepository;
 
         private KontoauszugService _kontoauszugService;
@@ -22,6 +24,7 @@ namespace SmartLedger.ViewModels
 
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
         public ObservableCollection<MitgliedMitZahlungenViewModel> Beitragsmatrix { get; set; }
+        public ObservableCollection<Buchung> KassenauszugBuchungen { get; set; }
 
         public ObservableCollection<int> VerfuegbareJahre { get; set; }
 
@@ -120,12 +123,14 @@ namespace SmartLedger.ViewModels
         public MainViewModel()
         {
             _repository = new MitgliedRepository();
+            _buchungRepository = new BuchungRepository();
             _beitragsRepository = new BeitragszahlungRepository();
             _kontoauszugService = new KontoauszugService(); 
             _matchingService = new MatchingService();
 
             Mitglieder = new ObservableCollection<MitgliedViewModel>();
             Beitragsmatrix = new ObservableCollection<MitgliedMitZahlungenViewModel>();
+            KassenauszugBuchungen = new ObservableCollection<Buchung>();
 
             VerfuegbareJahre = new ObservableCollection<int>();
             int aktuellesJahr = DateTime.Now.Year;
@@ -192,6 +197,18 @@ namespace SmartLedger.ViewModels
             OnPropertyChanged(nameof(BeitraegeBestaetigt));
             OnPropertyChanged(nameof(OffeneBeitraege));
             OnPropertyChanged(nameof(VorschlaegeKI));
+
+            LadeKassenauszug();
+        }
+
+        private void LadeKassenauszug()
+        {
+            KassenauszugBuchungen.Clear();
+            var alle = _buchungRepository.GetAlle();
+            foreach (var b in alle)
+            {
+                KassenauszugBuchungen.Add(b);
+            }
         }
 
 
@@ -204,6 +221,9 @@ namespace SmartLedger.ViewModels
                 Title = "Kontoauszug auswählen"
             };
 
+
+
+
             if (dialog.ShowDialog() != true) return;
 
             ImportStatus = "Importiere und analysiere...";
@@ -214,6 +234,15 @@ namespace SmartLedger.ViewModels
                 var alleMitglieder = _repository.GetAlle();
                 var matches = _matchingService.MatcheBuchungen(buchungen, alleMitglieder);
                 int anzahl = _matchingService.WendeMatchesAn(matches, _beitragsRepository);
+
+                foreach (var match in matches)
+                {
+                    match.Buchung.ZugeordneteMitgliederNamen = match.GematchteMitglieder.Count > 0
+                        ? string.Join(", ", match.GematchteMitglieder.Select(m => $"{m.Vorname} {m.Nachname}"))
+                        : "Kein Treffer";
+
+                    _buchungRepository.Speichern(match.Buchung);
+                }
 
                 ImportStatus = $"{buchungen.Count} Buchungen erkannt, {anzahl} neue KI-Vorschläge gesetzt.";
 

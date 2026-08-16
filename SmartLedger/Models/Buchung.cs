@@ -8,11 +8,12 @@ namespace SmartLedger.Models
 {
     public class Buchung
     {
+        public int Id { get; set; }
         public DateTime BuchungsDatum { get; set; }
         public string Verwendungszweck { get; set; }
         public decimal Betrag { get; set; }
 
 
-        public List<Mitglied> ZugeordneteMitglieder { get; set; } = new List<Mitglied>();
+        public string ZugeordneteMitgliederNamen { get; set; }
     }
 }

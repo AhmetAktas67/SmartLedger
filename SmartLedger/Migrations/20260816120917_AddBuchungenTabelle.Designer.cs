@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartLedger.Services;
 
@@ -10,9 +11,11 @@ using SmartLedger.Services;
 namespace SmartLedger.Migrations
 {
     [DbContext(typeof(SmartLedgerDbContext))]
-    partial class SmartLedgerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260816120917_AddBuchungenTabelle")]
+    partial class AddBuchungenTabelle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.18");
@@ -61,10 +64,6 @@ namespace SmartLedger.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ZugeordneteMitgliederNamen")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
                     b.ToTable("Buchungen");
@@ -74,6 +73,9 @@ namespace SmartLedger.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("BuchungId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Haushaltsgruppe")
@@ -92,6 +94,8 @@ namespace SmartLedger.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BuchungId");
+
                     b.ToTable("Mitglieder");
                 });
 
@@ -104,6 +108,18 @@ namespace SmartLedger.Migrations
                         .IsRequired();
 
                     b.Navigation("Mitglied");
+                });
+
+            modelBuilder.Entity("SmartLedger.Models.Mitglied", b =>
+                {
+                    b.HasOne("SmartLedger.Models.Buchung", null)
+                        .WithMany("ZugeordneteMitglieder")
+                        .HasForeignKey("BuchungId");
+                });
+
+            modelBuilder.Entity("SmartLedger.Models.Buchung", b =>
+                {
+                    b.Navigation("ZugeordneteMitglieder");
                 });
 #pragma warning restore 612, 618
         }
