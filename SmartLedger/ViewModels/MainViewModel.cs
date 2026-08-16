@@ -136,10 +136,7 @@ namespace SmartLedger.ViewModels
                 }
             });
 
-            var testService = new KontoauszugService();
-            string pdfPfad = @"C:\Users\ahmet\OneDrive\Desktop\kontoauszug.pdf";
-            string testErgebnis = testService.TesteImport(pdfPfad);
-            System.Windows.MessageBox.Show(testErgebnis);
+          
         }
 
        
@@ -149,6 +146,12 @@ namespace SmartLedger.ViewModels
             Beitragsmatrix.Clear();
 
             var alleMitglieder = _repository.GetAlle();
+
+            foreach (var mitglied in alleMitglieder)
+            {
+                _beitragsRepository.ErstelleJahrFuerMitglied(mitglied.Id, AusgewaehltesJahr);
+            }
+
             var alleZahlungen = _beitragsRepository.GetFuerJahr(AusgewaehltesJahr);
 
             foreach (var mitglied in alleMitglieder)
