@@ -21,5 +21,24 @@ namespace SmartLedger.Services
             using var db = new SmartLedgerDbContext();
             return db.Buchungen.OrderByDescending(b => b.BuchungsDatum).ToList();
         }
+
+        public bool ExistiertBereits(Buchung buchung)
+        {
+            using var db = new SmartLedgerDbContext();
+            return db.Buchungen.Any(b =>
+                b.BuchungsDatum == buchung.BuchungsDatum &&
+                b.Verwendungszweck == buchung.Verwendungszweck &&
+                b.Betrag == buchung.Betrag);
+        }
+
+        /*
+        public void LoescheAlle()
+        {
+            using var db = new SmartLedgerDbContext();
+            db.Buchungen.RemoveRange(db.Buchungen);
+            db.SaveChanges();
+        }
+
+        */
     }
 }

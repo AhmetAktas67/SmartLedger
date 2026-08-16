@@ -1,4 +1,6 @@
-﻿using SmartLedger.Models;
+﻿using Azure;
+using Azure.AI.DocumentIntelligence;
+using SmartLedger.Models;
 using SmartLedger.Services;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,9 @@ namespace SmartLedger.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+
+
+
         private MitgliedRepository _repository;
         private BuchungRepository _buchungRepository;
 
@@ -43,6 +48,8 @@ namespace SmartLedger.ViewModels
                 LadeKassenauszug();
             }
         }
+
+       
 
         private Mitglied _bearbeitetesMitglied;
 
@@ -127,6 +134,8 @@ namespace SmartLedger.ViewModels
             }
         }
 
+     
+
         public ICommand AddMitgliedCommand { get; set; }
         public ICommand DeleteMitgliedCommand { get; set; }
 
@@ -146,11 +155,15 @@ namespace SmartLedger.ViewModels
         }
 
         public ICommand EditMitgliedCommand { get; set; }
-
+        
         public MainViewModel()
         {
+           
+
+
             _repository = new MitgliedRepository();
             _buchungRepository = new BuchungRepository();
+           // _buchungRepository.LoescheAlle();
             _beitragsRepository = new BeitragszahlungRepository();
             _kontoauszugService = new KontoauszugService(); 
             _matchingService = new MatchingService();
@@ -204,6 +217,8 @@ namespace SmartLedger.ViewModels
         }
 
        
+
+
         private void LadeAlles()
         {
             Mitglieder.Clear();
@@ -292,6 +307,11 @@ namespace SmartLedger.ViewModels
 
                 foreach (var match in matches)
                 {
+                    if (_buchungRepository.ExistiertBereits(match.Buchung))
+                    {
+                        continue; // Buchung existiert schon, überspringen
+                    }
+
                     match.Buchung.ZugeordneteMitgliederNamen = match.GematchteMitglieder.Count > 0
                         ? string.Join(", ", match.GematchteMitglieder.Select(m => $"{m.Vorname} {m.Nachname}"))
                         : "Kein Treffer";

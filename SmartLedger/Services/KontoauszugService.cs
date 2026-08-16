@@ -64,42 +64,82 @@ namespace SmartLedger.Services
             var result = operation.Value;
             var buchungen = new List<Buchung>();
 
-            if (result.Tables.Count == 0) return buchungen;
+            int jahr = ErmittleJahrAusDokument(result);
 
-            int jahr = ErmittleJahrAusDokument(result); // <== NEU: automatisch erkanntes Jahr
+            var zeilen = result.Content
+                .Split('\n')
+                .Select(z => z.Trim())
+                .Where(z => !string.IsNullOrWhiteSpace(z))
+                .ToList();
 
-            var tabelle = result.Tables[0];
-            var zeilenGruppen = tabelle.Cells
-                .GroupBy(c => c.RowIndex)
-                .OrderBy(g => g.Key);
+            // <== GEÄNDERT: Muster erkennt nur die Datums-Startzeile, OHNE Betrag am Ende
+            var buchungsStartMuster = new Regex(@"^(\d{2}\.\d{2}\.)\s+(\d{2}\.\d{2}\.)\s+(.+)$");
 
-            foreach (var zeile in zeilenGruppen)
+            // <== NEU: eigenes Muster für die Betragszeile
+            var betragMuster = new Regex(@"^([\d\.]+,\d{2})\s*([HS])$");
+
+            Buchung aktuelleBuchung = null;
+            var verwendungszweckZeilen = new List<string>();
+            bool wartetAufBetrag = false;
+
+            void SchliesseAktuelleBuchungAb()
             {
-                if (zeile.Key == 0) continue;
-
-                var zellen = zeile.OrderBy(c => c.ColumnIndex).ToList();
-                if (zellen.Count < 4) continue;
-
-                string datumText = zellen[0].Content?.Trim();
-                string verwendungszweck = zellen[2].Content?.Trim();
-                string betragText = zellen[3].Content?.Trim();
-
-                if (string.IsNullOrWhiteSpace(datumText) || !datumText.Contains(".")) continue;
-                if (string.IsNullOrWhiteSpace(verwendungszweck)) continue;
-                if (string.IsNullOrWhiteSpace(betragText)) continue;
-
-                DateTime? datum = ParseDatum(datumText, jahr); // <== GEÄNDERT: nutzt jetzt automatisch erkanntes Jahr
-                decimal? betrag = ParseBetrag(betragText);
-
-                if (datum == null || betrag == null) continue;
-
-                buchungen.Add(new Buchung
+                if (aktuelleBuchung != null && aktuelleBuchung.Betrag > 0)
                 {
-                    BuchungsDatum = datum.Value,
-                    Verwendungszweck = verwendungszweck,
-                    Betrag = betrag.Value
-                });
+                    aktuelleBuchung.Verwendungszweck = string.Join(" ", verwendungszweckZeilen).Trim();
+                    if (!string.IsNullOrWhiteSpace(aktuelleBuchung.Verwendungszweck))
+                    {
+                        buchungen.Add(aktuelleBuchung);
+                    }
+                }
             }
+
+            foreach (var zeile in zeilen)
+            {
+                var startMatch = buchungsStartMuster.Match(zeile);
+                var betragMatch = betragMuster.Match(zeile);
+
+                if (startMatch.Success)
+                {
+                    // Neue Buchung beginnt -> alte zuerst abschließen
+                    SchliesseAktuelleBuchungAb();
+
+                    string datumText = startMatch.Groups[1].Value;
+                    DateTime? datum = ParseDatum(datumText, jahr);
+
+                    if (datum != null)
+                    {
+                        aktuelleBuchung = new Buchung { BuchungsDatum = datum.Value };
+                        verwendungszweckZeilen = new List<string> { startMatch.Groups[3].Value };
+                        wartetAufBetrag = true;
+                    }
+                    else
+                    {
+                        aktuelleBuchung = null;
+                        wartetAufBetrag = false;
+                    }
+                }
+                else if (wartetAufBetrag && betragMatch.Success)
+                {
+                    // Diese Zeile enthält den Betrag zur aktuellen Buchung
+                    decimal? betrag = ParseBetrag(betragMatch.Groups[1].Value);
+                    if (aktuelleBuchung != null && betrag != null)
+                    {
+                        aktuelleBuchung.Betrag = betrag.Value;
+                    }
+                    wartetAufBetrag = false;
+                }
+                else if (aktuelleBuchung != null)
+                {
+                    if (zeile.StartsWith("Übertrag") || zeile.Contains("Kontonummer") || zeile.Contains("erstellt am") || zeile.Contains("Bank 1 Saar"))
+                    {
+                        continue;
+                    }
+                    verwendungszweckZeilen.Add(zeile);
+                }
+            }
+
+            SchliesseAktuelleBuchungAb();
 
             return buchungen;
         }
@@ -139,6 +179,26 @@ namespace SmartLedger.Services
             return null;
         }
 
+        public string TesteSpaltenzahlen(string pdfPfad)
+        {
+            var client = new DocumentIntelligenceClient(
+                new Uri(AzureConfig.DocIntelEndpoint),
+                new AzureKeyCredential(AzureConfig.DocIntelKey));
+
+            using var stream = File.OpenRead(pdfPfad);
+            var operation = client.AnalyzeDocument(WaitUntil.Completed, "prebuilt-layout", BinaryData.FromStream(stream));
+            var result = operation.Value;
+
+            var sb = new StringBuilder();
+            int i = 0;
+            foreach (var tabelle in result.Tables)
+            {
+                sb.AppendLine($"Tabelle {i}: {tabelle.RowCount} Zeilen, {tabelle.ColumnCount} Spalten");
+                i++;
+            }
+            return sb.ToString();
+        }
+
         private int ErmittleJahrAusDokument(AnalyzeResult result)
         {
             // Durchsucht den gesamten erkannten Text nach einem Datum im Format TT.MM.JJJJ
@@ -150,6 +210,20 @@ namespace SmartLedger.Services
 
             // Fallback: aktuelles Jahr, falls nichts gefunden wird
             return DateTime.Now.Year;
+        }
+
+
+        public string TesteRohtext(string pdfPfad)
+        {
+            var client = new DocumentIntelligenceClient(
+                new Uri(AzureConfig.DocIntelEndpoint),
+                new AzureKeyCredential(AzureConfig.DocIntelKey));
+
+            using var stream = File.OpenRead(pdfPfad);
+            var operation = client.AnalyzeDocument(WaitUntil.Completed, "prebuilt-layout", BinaryData.FromStream(stream));
+            var result = operation.Value;
+
+            return result.Content.Substring(0, Math.Min(2000, result.Content.Length));
         }
     }
 }
