@@ -20,11 +20,38 @@ namespace SmartLedger.ViewModels
         private KontoauszugService _kontoauszugService;
         private MatchingService _matchingService;
 
+        private string _kassenauszugJahrFilter = "Alle";
+        public string KassenauszugJahrFilter
+        {
+            get => _kassenauszugJahrFilter;
+            set
+            {
+                _kassenauszugJahrFilter = value;
+                OnPropertyChanged(nameof(KassenauszugJahrFilter));
+                LadeKassenauszug();
+            }
+        }
+
+        private string _kassenauszugMonatFilter = "Alle";
+        public string KassenauszugMonatFilter
+        {
+            get => _kassenauszugMonatFilter;
+            set
+            {
+                _kassenauszugMonatFilter = value;
+                OnPropertyChanged(nameof(KassenauszugMonatFilter));
+                LadeKassenauszug();
+            }
+        }
+
         private Mitglied _bearbeitetesMitglied;
 
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
         public ObservableCollection<MitgliedMitZahlungenViewModel> Beitragsmatrix { get; set; }
         public ObservableCollection<Buchung> KassenauszugBuchungen { get; set; }
+
+        public ObservableCollection<string> KassenauszugJahre { get; set; }
+        public ObservableCollection<string> KassenauszugMonate { get; set; }
 
         public ObservableCollection<int> VerfuegbareJahre { get; set; }
 
@@ -139,6 +166,18 @@ namespace SmartLedger.ViewModels
                 VerfuegbareJahre.Add(jahr);
             }
 
+            KassenauszugJahre = new ObservableCollection<string> { "Alle" };
+            for (int jahr = aktuellesJahr - 2; jahr <= aktuellesJahr + 1; jahr++)
+            {
+                KassenauszugJahre.Add(jahr.ToString());
+            }
+
+            KassenauszugMonate = new ObservableCollection<string>
+                {
+                    "Alle", "Januar", "Februar", "März", "April", "Mai", "Juni",
+                    "Juli", "August", "September", "Oktober", "November", "Dezember"
+                };
+
             _ausgewaehltesJahr = aktuellesJahr;
 
 
@@ -205,12 +244,28 @@ namespace SmartLedger.ViewModels
         {
             KassenauszugBuchungen.Clear();
             var alle = _buchungRepository.GetAlle();
-            foreach (var b in alle)
+
+            var gefiltert = alle.AsEnumerable();
+
+            if (KassenauszugJahrFilter != "Alle")
+            {
+                int jahr = int.Parse(KassenauszugJahrFilter);
+                gefiltert = gefiltert.Where(b => b.BuchungsDatum.Year == jahr);
+            }
+
+            if (KassenauszugMonatFilter != "Alle")
+            {
+                string[] monatsNamen = { "", "Januar", "Februar", "März", "April", "Mai", "Juni",
+                                  "Juli", "August", "September", "Oktober", "November", "Dezember" };
+                int monatIndex = Array.IndexOf(monatsNamen, KassenauszugMonatFilter);
+                gefiltert = gefiltert.Where(b => b.BuchungsDatum.Month == monatIndex);
+            }
+
+            foreach (var b in gefiltert)
             {
                 KassenauszugBuchungen.Add(b);
             }
         }
-
 
 
         private void ImportKontoauszug()

@@ -346,6 +346,7 @@
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=2}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -354,7 +355,20 @@
                         <TextBlock Text="Alle importierten Buchungen aus Kontoauszügen, sortierbar." Foreground="Gray" FontSize="13"/>
                     </StackPanel>
 
-                    <ui:Card Grid.Row="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <!-- <== NEU: Filter-Zeile -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="Jahr:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#A0A0A0"/>
+                        <ComboBox Width="100" Margin="0,0,20,0"
+                  ItemsSource="{Binding KassenauszugJahre}"
+                  SelectedItem="{Binding KassenauszugJahrFilter}"/>
+
+                        <TextBlock Text="Monat:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#A0A0A0"/>
+                        <ComboBox Width="130"
+                  ItemsSource="{Binding KassenauszugMonate}"
+                  SelectedItem="{Binding KassenauszugMonatFilter}"/>
+                    </StackPanel>
+
+                    <ui:Card Grid.Row="2" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
                         <DataGrid ItemsSource="{Binding KassenauszugBuchungen}" AutoGenerateColumns="False"
                   Background="Transparent" BorderThickness="0" RowHeight="42"
                   GridLinesVisibility="Horizontal" Margin="8"
