@@ -47,8 +47,8 @@ namespace SmartLedger.Services
             return sb.ToString();
         }
 
-       
-        public List<Buchung> LeseBuchungenAus(string pdfPfad, int jahr)
+
+        public List<Buchung> LeseBuchungenAus(string pdfPfad)
         {
             var client = new DocumentIntelligenceClient(
                 new Uri(AzureConfig.DocIntelEndpoint),
@@ -66,16 +66,16 @@ namespace SmartLedger.Services
 
             if (result.Tables.Count == 0) return buchungen;
 
-            var tabelle = result.Tables[0];
+            int jahr = ErmittleJahrAusDokument(result); // <== NEU: automatisch erkanntes Jahr
 
-            // Zellen nach Zeile gruppieren, damit wir zeilenweise arbeiten können
+            var tabelle = result.Tables[0];
             var zeilenGruppen = tabelle.Cells
                 .GroupBy(c => c.RowIndex)
                 .OrderBy(g => g.Key);
 
             foreach (var zeile in zeilenGruppen)
             {
-                if (zeile.Key == 0) continue; // Kopfzeile überspringen
+                if (zeile.Key == 0) continue;
 
                 var zellen = zeile.OrderBy(c => c.ColumnIndex).ToList();
                 if (zellen.Count < 4) continue;
@@ -84,12 +84,11 @@ namespace SmartLedger.Services
                 string verwendungszweck = zellen[2].Content?.Trim();
                 string betragText = zellen[3].Content?.Trim();
 
-                // Zeilen ohne echtes Datum überspringen (z. B. "alter Kontostand"-Zeile)
                 if (string.IsNullOrWhiteSpace(datumText) || !datumText.Contains(".")) continue;
                 if (string.IsNullOrWhiteSpace(verwendungszweck)) continue;
                 if (string.IsNullOrWhiteSpace(betragText)) continue;
 
-                DateTime? datum = ParseDatum(datumText, jahr);
+                DateTime? datum = ParseDatum(datumText, jahr); // <== GEÄNDERT: nutzt jetzt automatisch erkanntes Jahr
                 decimal? betrag = ParseBetrag(betragText);
 
                 if (datum == null || betrag == null) continue;
@@ -105,7 +104,7 @@ namespace SmartLedger.Services
             return buchungen;
         }
 
-       
+
         private DateTime? ParseDatum(string datumText, int jahr)
         {
             
@@ -138,6 +137,19 @@ namespace SmartLedger.Services
                 return betrag;
             }
             return null;
+        }
+
+        private int ErmittleJahrAusDokument(AnalyzeResult result)
+        {
+            // Durchsucht den gesamten erkannten Text nach einem Datum im Format TT.MM.JJJJ
+            var match = Regex.Match(result.Content, @"\d{2}\.\d{2}\.(\d{4})");
+            if (match.Success)
+            {
+                return int.Parse(match.Groups[1].Value);
+            }
+
+            // Fallback: aktuelles Jahr, falls nichts gefunden wird
+            return DateTime.Now.Year;
         }
     }
 }

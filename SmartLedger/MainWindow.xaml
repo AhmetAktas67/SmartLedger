@@ -141,32 +141,47 @@
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="16">
+                        <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="16">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:Button Content="📄  Kontoauszug importieren"
+                           Appearance="Primary"
+                           Icon="{ui:SymbolIcon ArrowUpload24}"
+                           Command="{Binding ImportKontoauszugCommand}"
+                           Width="220"/>
+                            <TextBlock Text="{Binding ImportStatus}" 
+                           VerticalAlignment="Center" 
+                           Margin="16,0,0,0"
+                           Foreground="#A0A0A0"/>
+                        </StackPanel>
+                    </ui:Card>
+
+                    <ui:Card Grid.Row="1" Margin="0,0,0,16" Padding="16">
                         <StackPanel>
                             <TextBlock Text="Mitglied erfassen" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
                             <StackPanel Orientation="Horizontal">
                                 <ComboBox Width="90" Margin="0,0,12,0"
-                          ItemsSource="{Binding VerfuegbareJahre}"
-                          SelectedItem="{Binding AusgewaehltesJahr}" />
-                                <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Vorname"
-                            Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
-                                <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Nachname"
-                            Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
-                                <ui:TextBox Width="110" Margin="0,0,12,0" PlaceholderText="Beitrag €"
-                            Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
+                              ItemsSource="{Binding VerfuegbareJahre}"
+                              SelectedItem="{Binding AusgewaehltesJahr}" />
+                                            <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Vorname"
+                                Text="{Binding NeuerVorname, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ui:TextBox Width="160" Margin="0,0,12,0" PlaceholderText="Nachname"
+                                Text="{Binding NeuerNachname, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ui:TextBox Width="110" Margin="0,0,12,0" PlaceholderText="Beitrag €"
+                                Text="{Binding NeuerBeitrag, UpdateSourceTrigger=PropertyChanged}" />
                                 <ui:Button Content="{Binding ButtonText}" Appearance="Primary"
-                           Icon="{ui:SymbolIcon PersonAdd24}"
-                           Command="{Binding AddMitgliedCommand}" Width="130" />
+                               Icon="{ui:SymbolIcon PersonAdd24}"
+                               Command="{Binding AddMitgliedCommand}" Width="130" />
                             </StackPanel>
                             <TextBlock Text="{Binding FehlerText}" Foreground="{DynamicResource SystemFillColorCriticalBrush}" Margin="0,10,0,0" FontWeight="Medium"/>
                         </StackPanel>
                     </ui:Card>
 
                     <!--  kombinierte Tabelle, bindet an Beitragsmatrix statt Mitglieder -->
-                    <ui:Card Grid.Row="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <ui:Card Grid.Row="2" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
                         <DataGrid ItemsSource="{Binding Beitragsmatrix}" AutoGenerateColumns="False"
                   Background="Transparent" BorderThickness="0" RowHeight="42"
                   GridLinesVisibility="Horizontal" Margin="8">

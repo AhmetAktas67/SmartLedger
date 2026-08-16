@@ -15,6 +15,9 @@ namespace SmartLedger.ViewModels
         private MitgliedRepository _repository;
         private BeitragszahlungRepository _beitragsRepository;
 
+        private KontoauszugService _kontoauszugService;
+        private MatchingService _matchingService;
+
         private Mitglied _bearbeitetesMitglied;
 
         public ObservableCollection<MitgliedViewModel> Mitglieder { get; set; }
@@ -99,12 +102,27 @@ namespace SmartLedger.ViewModels
 
         public ICommand NavigateCommand { get; set; }
 
+        public ICommand ImportKontoauszugCommand { get; set; }
+
+        private string _importStatus;
+        public string ImportStatus
+        {
+            get => _importStatus;
+            set
+            {
+                _importStatus = value;
+                OnPropertyChanged(nameof(ImportStatus));
+            }
+        }
+
         public ICommand EditMitgliedCommand { get; set; }
 
         public MainViewModel()
         {
             _repository = new MitgliedRepository();
-            _beitragsRepository = new BeitragszahlungRepository();  
+            _beitragsRepository = new BeitragszahlungRepository();
+            _kontoauszugService = new KontoauszugService(); 
+            _matchingService = new MatchingService();
 
             Mitglieder = new ObservableCollection<MitgliedViewModel>();
             Beitragsmatrix = new ObservableCollection<MitgliedMitZahlungenViewModel>();
@@ -124,6 +142,8 @@ namespace SmartLedger.ViewModels
             AddMitgliedCommand = new RelayCommand(AddOderUpdateMitglied);
             DeleteMitgliedCommand = new RelayCommand<int>(DeleteMitglied);
             EditMitgliedCommand = new RelayCommand<int>(StarteBearbeitung);
+            ImportKontoauszugCommand = new RelayCommand(ImportKontoauszug);
+
             NavigateCommand = new RelayCommand<string>(seite =>
             {
                 AktuelleSeite = int.Parse(seite);
@@ -173,6 +193,39 @@ namespace SmartLedger.ViewModels
             OnPropertyChanged(nameof(OffeneBeitraege));
             OnPropertyChanged(nameof(VorschlaegeKI));
         }
+
+
+
+        private void ImportKontoauszug()
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "PDF-Dateien (*.pdf)|*.pdf",
+                Title = "Kontoauszug auswählen"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            ImportStatus = "Importiere und analysiere...";
+
+            try
+            {
+                var buchungen = _kontoauszugService.LeseBuchungenAus(dialog.FileName);
+                var alleMitglieder = _repository.GetAlle();
+                var matches = _matchingService.MatcheBuchungen(buchungen, alleMitglieder);
+                int anzahl = _matchingService.WendeMatchesAn(matches, _beitragsRepository);
+
+                ImportStatus = $"{buchungen.Count} Buchungen erkannt, {anzahl} neue KI-Vorschläge gesetzt.";
+
+                LadeAlles();
+            }
+            catch (Exception ex)
+            {
+                ImportStatus = $"Fehler beim Import: {ex.Message}";
+            }
+        }
+
+
 
         private void StarteBearbeitung(int mitgliedId)
         {
