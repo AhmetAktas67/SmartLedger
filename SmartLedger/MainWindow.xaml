@@ -88,9 +88,15 @@
                     <ui:Button Content="📊  Auswertungen" Style="{StaticResource NavButtonStyle}"
                                Command="{Binding NavigateCommand}" CommandParameter="3"/>
 
+                    <ui:Button Content="👤  Mitgliedsbeiträge" Style="{StaticResource NavButtonStyle}"
+                     Command="{Binding NavigateCommand}" CommandParameter="2"/>
+                   
+                    <ui:Button Content="💰  Buchungen" Style="{StaticResource NavButtonStyle}"
+                    Command="{Binding NavigateCommand}" CommandParameter="5"/>
+
                     <ui:Button Content="📑  Kassenauszug" Style="{StaticResource NavButtonStyle}"
-                    Command="{Binding NavigateCommand}" CommandParameter="2"/>
-                    
+                    Command="{Binding NavigateCommand}" CommandParameter="6"/>
+
                     <ui:Button Content="⚙️  Einstellungen" Style="{StaticResource NavButtonStyle}"
                                Command="{Binding NavigateCommand}" CommandParameter="4"/>
                 </StackPanel>
@@ -351,11 +357,89 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Mitgliedsbeiträge" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Alle Buchungen, die einem Mitglied zugeordnet wurden." Foreground="Gray" FontSize="13"/>
+                    </StackPanel>
+
+                    
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="Jahr:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#A0A0A0"/>
+                        <ComboBox Width="100" Margin="0,0,20,0"
+                  ItemsSource="{Binding KassenauszugJahre}"
+                  SelectedItem="{Binding KassenauszugJahrFilter}"/>
+
+                        <TextBlock Text="Monat:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#A0A0A0"/>
+                        <ComboBox Width="130"
+                  ItemsSource="{Binding KassenauszugMonate}"
+                  SelectedItem="{Binding KassenauszugMonatFilter}"/>
+                    </StackPanel>
+
+                    <ui:Card Grid.Row="2" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                        <DataGrid ItemsSource="{Binding MitgliedsbeitraegeBuchungen}" AutoGenerateColumns="False"
+                  Background="Transparent" BorderThickness="0" RowHeight="42"
+                  GridLinesVisibility="Horizontal" Margin="8"
+                  CanUserSortColumns="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Datum" Binding="{Binding BuchungsDatum, StringFormat=dd.MM.yyyy}" Width="120"/>
+                                <DataGridTextColumn Header="Verwendungszweck" Binding="{Binding Verwendungszweck}" Width="*"/>
+                                <DataGridTextColumn Header="Betrag (€)" Binding="{Binding Betrag, StringFormat=F2}" Width="100"/>
+                                <DataGridTextColumn Header="Zugeordnet" Binding="{Binding ZugeordneteMitgliederNamen}" Width="200"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ui:Card>
+                </Grid>
+
+
+                <!-- Seite 3: Auswertungen (Platzhalter) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=3}">
+                    <TextBlock Text="Auswertungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Seite 4: Einstellungen (Platzhalter) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=4}">
+                    <TextBlock Text="Einstellungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Seite 5: Buchungen (sonstige, nicht Mitgliedsbeitrag) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=5}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Buchungen" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Sonstige Buchungen ohne Mitgliedszuordnung (Lastschriften, Spenden, etc.)." Foreground="Gray" FontSize="13"/>
+                    </StackPanel>
+
+                    <ui:Card Grid.Row="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                        <DataGrid ItemsSource="{Binding SonstigeBuchungen}" AutoGenerateColumns="False"
+                  Background="Transparent" BorderThickness="0" RowHeight="42"
+                  GridLinesVisibility="Horizontal" Margin="8"
+                  CanUserSortColumns="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Datum" Binding="{Binding BuchungsDatum, StringFormat=dd.MM.yyyy}" Width="120"/>
+                                <DataGridTextColumn Header="Verwendungszweck" Binding="{Binding Verwendungszweck}" Width="*"/>
+                                <DataGridTextColumn Header="Betrag (€)" Binding="{Binding Betrag, StringFormat=F2}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ui:Card>
+                </Grid>
+
+
+                <!-- Seite 6: Kassenauszug (ALLE Buchungen, ungefiltert) -->
+                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=6}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,16">
                         <TextBlock Text="Kassenauszug" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
                         <TextBlock Text="Alle importierten Buchungen aus Kontoauszügen, sortierbar." Foreground="Gray" FontSize="13"/>
                     </StackPanel>
 
-                    <!-- <== NEU: Filter-Zeile -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
                         <TextBlock Text="Jahr:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#A0A0A0"/>
                         <ComboBox Width="100" Margin="0,0,20,0"
@@ -384,15 +468,6 @@
                 </Grid>
 
 
-                <!-- Seite 3: Auswertungen (Platzhalter) -->
-                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=3}">
-                    <TextBlock Text="Auswertungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
-
-                <!-- Seite 4: Einstellungen (Platzhalter) -->
-                <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=4}">
-                    <TextBlock Text="Einstellungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
 
             </Grid>
         </Grid>

@@ -57,6 +57,9 @@ namespace SmartLedger.ViewModels
         public ObservableCollection<MitgliedMitZahlungenViewModel> Beitragsmatrix { get; set; }
         public ObservableCollection<Buchung> KassenauszugBuchungen { get; set; }
 
+        public ObservableCollection<Buchung> MitgliedsbeitraegeBuchungen { get; set; }
+        public ObservableCollection<Buchung> SonstigeBuchungen { get; set; }
+
         public ObservableCollection<string> KassenauszugJahre { get; set; }
         public ObservableCollection<string> KassenauszugMonate { get; set; }
 
@@ -172,6 +175,9 @@ namespace SmartLedger.ViewModels
             Beitragsmatrix = new ObservableCollection<MitgliedMitZahlungenViewModel>();
             KassenauszugBuchungen = new ObservableCollection<Buchung>();
 
+            MitgliedsbeitraegeBuchungen = new ObservableCollection<Buchung>();
+            SonstigeBuchungen = new ObservableCollection<Buchung>();
+
             VerfuegbareJahre = new ObservableCollection<int>();
             int aktuellesJahr = DateTime.Now.Year;
             for (int jahr = aktuellesJahr - 2; jahr <= aktuellesJahr + 1; jahr++)
@@ -258,6 +264,9 @@ namespace SmartLedger.ViewModels
         private void LadeKassenauszug()
         {
             KassenauszugBuchungen.Clear();
+            MitgliedsbeitraegeBuchungen.Clear();
+            SonstigeBuchungen.Clear();
+
             var alle = _buchungRepository.GetAlle();
 
             var gefiltert = alle.AsEnumerable();
@@ -271,7 +280,7 @@ namespace SmartLedger.ViewModels
             if (KassenauszugMonatFilter != "Alle")
             {
                 string[] monatsNamen = { "", "Januar", "Februar", "März", "April", "Mai", "Juni",
-                                  "Juli", "August", "September", "Oktober", "November", "Dezember" };
+                          "Juli", "August", "September", "Oktober", "November", "Dezember" };
                 int monatIndex = Array.IndexOf(monatsNamen, KassenauszugMonatFilter);
                 gefiltert = gefiltert.Where(b => b.BuchungsDatum.Month == monatIndex);
             }
@@ -279,6 +288,15 @@ namespace SmartLedger.ViewModels
             foreach (var b in gefiltert)
             {
                 KassenauszugBuchungen.Add(b);
+
+                if (b.ZugeordneteMitgliederNamen != "Kein Treffer")
+                {
+                    MitgliedsbeitraegeBuchungen.Add(b);
+                }
+                else
+                {
+                    SonstigeBuchungen.Add(b);
+                }
             }
         }
 
