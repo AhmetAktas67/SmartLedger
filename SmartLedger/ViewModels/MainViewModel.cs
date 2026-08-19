@@ -49,7 +49,7 @@ namespace SmartLedger.ViewModels
             }
         }
 
-       
+
 
         private Mitglied _bearbeitetesMitglied;
 
@@ -65,8 +65,31 @@ namespace SmartLedger.ViewModels
 
         public ObservableCollection<int> VerfuegbareJahre { get; set; }
 
+        public ObservableCollection<OffeneBeitraegeEintrag> OffeneBeitraegeListe { get; set; }
 
-        private int _aktuelleSeite = 1; 
+        public class OffeneBeitraegeEintrag
+        {
+            public string Vorname { get; set; }
+            public string Nachname { get; set; }
+            public int AnzahlOffeneMonate { get; set; }
+            public decimal OffenerBetrag { get; set; }
+        }
+
+        public ObservableCollection<string> AuswertungsJahre { get; set; }
+
+        private string _auswertungsJahrFilter = "Alle Jahre";
+        public string AuswertungsJahrFilter
+        {
+            get => _auswertungsJahrFilter;
+            set
+            {
+                _auswertungsJahrFilter = value;
+                OnPropertyChanged(nameof(AuswertungsJahrFilter));
+                LadeOffeneBeitraege();
+            }
+        }
+
+        private int _aktuelleSeite = 1;
         public int AktuelleSeite
         {
             get => _aktuelleSeite;
@@ -91,7 +114,7 @@ namespace SmartLedger.ViewModels
             }
         }
 
-        private int _ausgewaehltesJahr; 
+        private int _ausgewaehltesJahr;
         public int AusgewaehltesJahr
         {
             get => _ausgewaehltesJahr;
@@ -110,15 +133,15 @@ namespace SmartLedger.ViewModels
                                   m.Juli, m.August, m.September, m.Oktober, m.November, m.Dezember })
         .Count(status => status == ZahlungsStatus.BestaetigtManuell);
 
-            public int OffeneBeitraege => Beitragsmatrix
-                .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
+        public int OffeneBeitraege => Beitragsmatrix
+            .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
                                   m.Juli, m.August, m.September, m.Oktober, m.November, m.Dezember })
-                .Count(status => status == ZahlungsStatus.Offen);
+            .Count(status => status == ZahlungsStatus.Offen);
 
-            public int VorschlaegeKI => Beitragsmatrix
-                .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
+        public int VorschlaegeKI => Beitragsmatrix
+            .SelectMany(m => new[] { m.Januar, m.Februar, m.Maerz, m.April, m.Mai, m.Juni,
                                   m.Juli, m.August, m.September, m.Oktober, m.November, m.Dezember })
-                .Count(status => status == ZahlungsStatus.VorschlagKI);
+            .Count(status => status == ZahlungsStatus.VorschlagKI);
 
 
 
@@ -137,7 +160,7 @@ namespace SmartLedger.ViewModels
             }
         }
 
-     
+
 
         public ICommand AddMitgliedCommand { get; set; }
         public ICommand DeleteMitgliedCommand { get; set; }
@@ -158,17 +181,17 @@ namespace SmartLedger.ViewModels
         }
 
         public ICommand EditMitgliedCommand { get; set; }
-        
+
         public MainViewModel()
         {
-           
+
 
 
             _repository = new MitgliedRepository();
             _buchungRepository = new BuchungRepository();
-           // _buchungRepository.LoescheAlle();
+            // _buchungRepository.LoescheAlle();
             _beitragsRepository = new BeitragszahlungRepository();
-            _kontoauszugService = new KontoauszugService(); 
+            _kontoauszugService = new KontoauszugService();
             _matchingService = new MatchingService();
 
             Mitglieder = new ObservableCollection<MitgliedViewModel>();
@@ -177,6 +200,8 @@ namespace SmartLedger.ViewModels
 
             MitgliedsbeitraegeBuchungen = new ObservableCollection<Buchung>();
             SonstigeBuchungen = new ObservableCollection<Buchung>();
+
+            OffeneBeitraegeListe = new ObservableCollection<OffeneBeitraegeEintrag>();
 
             VerfuegbareJahre = new ObservableCollection<int>();
             int aktuellesJahr = DateTime.Now.Year;
@@ -191,6 +216,13 @@ namespace SmartLedger.ViewModels
                 KassenauszugJahre.Add(jahr.ToString());
             }
 
+
+            AuswertungsJahre = new ObservableCollection<string> { "Alle Jahre" };
+            for (int jahr = aktuellesJahr - 2; jahr <= aktuellesJahr + 1; jahr++)
+            {
+                AuswertungsJahre.Add(jahr.ToString());
+            }
+
             KassenauszugMonate = new ObservableCollection<string>
                 {
                     "Alle", "Januar", "Februar", "März", "April", "Mai", "Juni",
@@ -200,7 +232,7 @@ namespace SmartLedger.ViewModels
             _ausgewaehltesJahr = aktuellesJahr;
 
 
-            LadeAlles();  
+            LadeAlles();
 
             AddMitgliedCommand = new RelayCommand(AddOderUpdateMitglied);
             DeleteMitgliedCommand = new RelayCommand<int>(DeleteMitglied);
@@ -210,7 +242,7 @@ namespace SmartLedger.ViewModels
             NavigateCommand = new RelayCommand<string>(seite =>
             {
                 AktuelleSeite = int.Parse(seite);
-                if (AktuelleSeite == 0) 
+                if (AktuelleSeite == 0)
                 {
                     OnPropertyChanged(nameof(GesamtMitglieder));
                     OnPropertyChanged(nameof(BeitraegeBestaetigt));
@@ -219,10 +251,10 @@ namespace SmartLedger.ViewModels
                 }
             });
 
-          
+
         }
 
-       
+
 
 
         private void LadeAlles()
@@ -259,6 +291,7 @@ namespace SmartLedger.ViewModels
             OnPropertyChanged(nameof(VorschlaegeKI));
 
             LadeKassenauszug();
+            LadeOffeneBeitraege();
         }
 
         private void LadeKassenauszug()
@@ -386,7 +419,7 @@ namespace SmartLedger.ViewModels
 
             if (_bearbeitetesMitglied != null)
             {
-               
+
                 _bearbeitetesMitglied.Vorname = NeuerVorname;
                 _bearbeitetesMitglied.Nachname = NeuerNachname;
                 _bearbeitetesMitglied.Monatsbeitrag = NeuerBeitrag;
@@ -398,7 +431,7 @@ namespace SmartLedger.ViewModels
             }
             else
             {
-                
+
                 var neuesMitglied = new Mitglied
                 {
                     Vorname = NeuerVorname,
@@ -410,7 +443,7 @@ namespace SmartLedger.ViewModels
                 _beitragsRepository.ErstelleJahrFuerMitglied(neuesMitglied.Id, AusgewaehltesJahr);
             }
 
-            
+
             NeuerVorname = "";
             OnPropertyChanged(nameof(NeuerVorname));
             NeuerNachname = "";
@@ -425,6 +458,57 @@ namespace SmartLedger.ViewModels
         {
             _repository.Loeschen(mitgliedId);
             LadeAlles();
+        }
+
+        private void LadeOffeneBeitraege()
+        {
+            OffeneBeitraegeListe.Clear();
+
+            var alleMitglieder = _repository.GetAlle();
+            var ergebnisListe = new List<OffeneBeitraegeEintrag>();
+
+            foreach (var mitglied in alleMitglieder)
+            {
+                List<Beitragszahlung> relevanteZahlungen;
+
+                if (AuswertungsJahrFilter == "Alle Jahre")
+                {
+                    // Über alle verfügbaren Jahre summieren
+                    relevanteZahlungen = new List<Beitragszahlung>();
+                    foreach (var jahrString in AuswertungsJahre.Where(j => j != "Alle Jahre"))
+                    {
+                        int jahr = int.Parse(jahrString);
+                        var zahlungenDesJahres = _beitragsRepository.GetFuerJahr(jahr)
+                            .Where(z => z.MitgliedId == mitglied.Id);
+                        relevanteZahlungen.AddRange(zahlungenDesJahres);
+                    }
+                }
+                else
+                {
+                    int jahr = int.Parse(AuswertungsJahrFilter);
+                    relevanteZahlungen = _beitragsRepository.GetFuerJahr(jahr)
+                        .Where(z => z.MitgliedId == mitglied.Id)
+                        .ToList();
+                }
+
+                int offeneMonate = relevanteZahlungen.Count(z => z.Status == ZahlungsStatus.Offen);
+
+                if (offeneMonate > 0)
+                {
+                    ergebnisListe.Add(new OffeneBeitraegeEintrag
+                    {
+                        Vorname = mitglied.Vorname,
+                        Nachname = mitglied.Nachname,
+                        AnzahlOffeneMonate = offeneMonate,
+                        OffenerBetrag = offeneMonate * mitglied.Monatsbeitrag
+                    });
+                }
+            }
+
+            foreach (var eintrag in ergebnisListe.OrderByDescending(x => x.AnzahlOffeneMonate))
+            {
+                OffeneBeitraegeListe.Add(eintrag);
+            }
         }
     }
 }

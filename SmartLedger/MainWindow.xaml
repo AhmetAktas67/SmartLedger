@@ -392,9 +392,39 @@
 
                 <!-- Seite 3: Auswertungen (Platzhalter) -->
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=3}">
-                    <TextBlock Text="Auswertungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
+                    <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Auswertungen" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Mitglieder mit offenen Beiträgen, sortiert nach Anzahl." Foreground="Gray" FontSize="13"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="Zeitraum:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#A0A0A0"/>
+                        <ComboBox Width="130"
+                  ItemsSource="{Binding AuswertungsJahre}"
+                  SelectedItem="{Binding AuswertungsJahrFilter}"/>
+                    </StackPanel>
+
+                    <ui:Card Grid.Row="2" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                        <DataGrid ItemsSource="{Binding OffeneBeitraegeListe}" AutoGenerateColumns="False"
+                  Background="Transparent" BorderThickness="0" RowHeight="42"
+                  GridLinesVisibility="Horizontal" Margin="8"
+                  CanUserSortColumns="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" Width="*"/>
+                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" Width="*"/>
+                                <DataGridTextColumn Header="Offene Monate" Binding="{Binding AnzahlOffeneMonate}" Width="140"/>
+                                <DataGridTextColumn Header="Offener Betrag (€)" Binding="{Binding OffenerBetrag, StringFormat=F2}" Width="160"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ui:Card>
+                </Grid>
+                
                 <!-- Seite 4: Einstellungen (Platzhalter) -->
                 <Grid Visibility="{Binding AktuelleSeite, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=4}">
                     <TextBlock Text="Einstellungen folgen später" FontSize="20" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
